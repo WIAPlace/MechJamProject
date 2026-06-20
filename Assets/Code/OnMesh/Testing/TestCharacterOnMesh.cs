@@ -1,20 +1,49 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Threading;
 
-public class TestRaycastTriangleDetector : MonoBehaviour
+public class TestCharacterOnMesh : MonoBehaviour
 {
+    public bool logTriangles;
     public float rayDistance = 10f;
+    public LayerMask indexMask;
+    
+
+    private Collider previousHitCollider = null;
+    private MeshEdgeScanner scanner;
+    private int debugLastTriangleIndex = -1;
+
+
+    
+    [Header("Debug/Editor Stuff")]
+    public Vector3 baryCoords;
+    
+
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        
+    }
 
     void Update()
     {
+        DrawLineForward();
         // Example: Cast a ray straight forward from this object
-        Ray ray = new Ray(transform.position, transform.forward);
+        Ray ray = new Ray(transform.position, -transform.up);
         RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, rayDistance))
+        
+        if (Physics.Raycast(ray, out hit, rayDistance ,indexMask))
         {
-            // Verify we hit a mesh scanner target
-            MeshEdgeScanner scanner = hit.collider.GetComponent<MeshEdgeScanner>();
+            if(previousHitCollider == null || hit.collider != previousHitCollider)
+            {    // Verify we hit a mesh scanner target 
+                scanner = hit.collider.GetComponent<MeshEdgeScanner>();
+                previousHitCollider = hit.collider;
+
+                // only send this to console if it is wanted
+                if(logTriangles) Debug.Log(hit.collider.name);
+            }
+
             if (scanner != null)
             {
                 // Capture the exact hit triangle index
@@ -23,17 +52,14 @@ public class TestRaycastTriangleDetector : MonoBehaviour
                 // -1 indicates a non-mesh collider or invalid hit
                 if (hitTriangleIndex != -1)
                 {
-                    Debug.Log($"Raycast hit Triangle ID: {hitTriangleIndex}");
+                    if(hitTriangleIndex != debugLastTriangleIndex && logTriangles){
+                        Debug.Log($"Raycast hit Triangle ID: {hitTriangleIndex}");
+                        debugLastTriangleIndex = hitTriangleIndex;
+                    }
                     DrawDebugTriangleEdges(hitTriangleIndex,scanner);
 
-                    // Retrieve the neighbors using your scanner data structure
-                    // (Ensure triangleNeighbors array in MeshEdgeScanner is public or accessible)
-                    if (hitTriangleIndex < scanner.triangleNeighbors.Length)
-                    {
-                        var neighbors = scanner.triangleNeighbors[hitTriangleIndex];
-                        Debug.Log($"Connected neighbor triangles: {string.Join(", ", neighbors)}");
-                        //DrawDebugTriangleEdges(neighbors[hitTriangleIndex],scanner);
-                    }
+                    baryCoords = hit.barycentricCoordinate;
+                    DebugShowBaryCoords(hit, scanner);
                 }
             }
         }
@@ -94,5 +120,41 @@ public class TestRaycastTriangleDetector : MonoBehaviour
                     Debug.DrawLine(nC + nNormal, nA + nNormal, Color.yellow);
             }
         }
+    }
+
+    private void DrawLineForward()
+    {
+        // Define the start and end points
+        Vector3 startPoint = transform.position;
+        Vector3 endPoint = startPoint + (-transform.up* rayDistance);
+
+        // Draw the line in the Scene View (Color, Duration)
+        Debug.DrawLine(startPoint, endPoint, Color.green);
+    }
+    
+    private void DebugShowBaryCoords(RaycastHit hit, MeshEdgeScanner scanner)
+    {
+        Mesh mesh = scanner.GetComponent<MeshFilter>().mesh;
+        int[] triangles = mesh.triangles;
+        Vector3[] vertices = mesh.vertices;
+        Transform meshTransform = scanner.transform;
+
+        // Extract the 3 local vertex positions of the hit triangle
+        Vector3 p0 = vertices[triangles[hit.triangleIndex * 3 + 0]];
+        Vector3 p1 = vertices[triangles[hit.triangleIndex * 3 + 1]];
+        Vector3 p2 = vertices[triangles[hit.triangleIndex * 3 + 2]];
+
+        // Calculate the local position using the Barycentric Weights (x=u, y=v, z=w)
+        Vector3 baryB = hit.barycentricCoordinate;
+        Vector3 localHitPoint = p0 * baryB.x + p1 * baryB.y + p2 * baryB.z;
+
+        // Transform the local point into 3D World Space coordinates
+        Vector3 worldHitPoint = hit.transform.TransformPoint(localHitPoint);
+
+        // draw a cross hair at the point
+        Debug.DrawLine(worldHitPoint + Vector3.up * 0.2f, worldHitPoint + Vector3.down * 0.2f, Color.green);
+        Debug.DrawLine(worldHitPoint + Vector3.left * 0.2f, worldHitPoint + Vector3.right * 0.2f, Color.green);
+        Debug.DrawLine(worldHitPoint + Vector3.forward * 0.2f, worldHitPoint + Vector3.back * 0.2f, Color.green);
+
     }
 }

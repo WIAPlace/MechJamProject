@@ -3,32 +3,59 @@ using System.Collections.Generic;
 
 public class MeshEdgeScanner : MonoBehaviour
 {
-    // Define a struct to represent an undirected edge
     public struct Edge
     {
-        public int v1;
-        public int v2;
+        public Vector3 pos1;
+        public Vector3 pos2;
 
-        public Edge(int vertex1, int vertex2)
+        public Edge(Vector3 p1, Vector3 p2)
         {
-            // Sort to ensure undirected edges (Edge A-B and B-A are the same)
-            if (vertex1 < vertex2) { v1 = vertex1; v2 = vertex2; }
-            else { v1 = vertex2; v2 = vertex1; }
+            // Vector comparison logic to sort points predictably
+            if (p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y) || (p1.x == p2.x && p1.y == p2.y && p1.z < p2.z))
+            {
+                pos1 = p1; pos2 = p2;
+            }
+            else
+            {
+                pos1 = p2; pos2 = p1;
+            }
         }
 
         public override bool Equals(object obj)
         {
             if (!(obj is Edge)) return false;
             Edge other = (Edge)obj;
-            return v1 == other.v1 && v2 == other.v2;
+            
+            // Tiny math threshold (epsilon) to avoid minor rounding float issues
+            return Vector3.Distance(pos1, other.pos1) < 0.001f && 
+                   Vector3.Distance(pos2, other.pos2) < 0.001f;
         }
 
         public override int GetHashCode()
         {
-            return v1.GetHashCode() ^ v2.GetHashCode();
+            // Quantize floating points into rough integer steps
+            int x1 = Mathf.RoundToInt(pos1.x * 1000f);
+            int y1 = Mathf.RoundToInt(pos1.y * 1000f);
+            int z1 = Mathf.RoundToInt(pos1.z * 1000f);
+            int x2 = Mathf.RoundToInt(pos2.x * 1000f);
+            int y2 = Mathf.RoundToInt(pos2.y * 1000f);
+            int z2 = Mathf.RoundToInt(pos2.z * 1000f);
+
+            // Use a proper multiplier to avoid XOR collisions
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + x1;
+                hash = hash * 23 + y1;
+                hash = hash * 23 + z1;
+                hash = hash * 23 + x2;
+                hash = hash * 23 + y2;
+                hash = hash * 23 + z2;
+                return hash;
+            }
         }
     }
-    
+
     public List<int>[] triangleNeighbors;
 
     void Start()
@@ -38,24 +65,24 @@ public class MeshEdgeScanner : MonoBehaviour
 
         Mesh mesh = meshFilter.mesh;
         int[] triangles = mesh.triangles;
+        Vector3[] vertices = mesh.vertices;
 
-        // Map an edge to the list of triangles that share it
         Dictionary<Edge, List<int>> edgeToTriangles = new Dictionary<Edge, List<int>>();
 
-        // STEP 1: Scan all triangles and map their edges
+        // STEP 1: Scan all triangles and map edges via physical coordinates
         for (int i = 0; i < triangles.Length; i += 3)
         {
             int triangleIndex = i / 3;
 
-            int vertA = triangles[i];
-            int vertB = triangles[i + 1];
-            int vertC = triangles[i + 2];
+            Vector3 posA = vertices[triangles[i]];
+            Vector3 posB = vertices[triangles[i + 1]];
+            Vector3 posC = vertices[triangles[i + 2]];
 
             Edge[] edges = new Edge[]
             {
-                new Edge(vertA, vertB),
-                new Edge(vertB, vertC),
-                new Edge(vertC, vertA)
+                new Edge(posA, posB),
+                new Edge(posB, posC),
+                new Edge(posC, posA)
             };
 
             foreach (Edge edge in edges)
@@ -68,7 +95,6 @@ public class MeshEdgeScanner : MonoBehaviour
         }
 
         // STEP 2: Create triangle neighbor connections
-        // Note: You can size this as `new List<int>[triangleCount]`
         int triangleCount = triangles.Length / 3;
         triangleNeighbors = new List<int>[triangleCount];
 
@@ -77,52 +103,25 @@ public class MeshEdgeScanner : MonoBehaviour
             triangleNeighbors[i] = new List<int>();
         }
 
-        // Iterate through all edges to see which triangles connect
         foreach (KeyValuePair<Edge, List<int>> kvp in edgeToTriangles)
         {
             List<int> connectedTris = kvp.Value;
 
-            // If an edge is shared by 2+ triangles, those triangles are connected
             if (connectedTris.Count > 1)
             {
-                int triA = connectedTris[0];
-                int triB = connectedTris[1];
+                for (int a = 0; a < connectedTris.Count; a++)
+                {
+                    for (int b = a + 1; b < connectedTris.Count; b++)
+                    {
+                        int triA = connectedTris[a];
+                        int triB = connectedTris[b];
 
-                if (!triangleNeighbors[triA].Contains(triB)) triangleNeighbors[triA].Add(triB);
-                if (!triangleNeighbors[triB].Contains(triA)) triangleNeighbors[triB].Add(triA);
+                        // FIXED: Correctly assign two-way relationships
+                        if (!triangleNeighbors[triA].Contains(triB)) triangleNeighbors[triA].Add(triB);
+                        if (!triangleNeighbors[triB].Contains(triA)) triangleNeighbors[triB].Add(triA);
+                    }
+                }
             }
-        }
-
-        // Debug output to verify connections
-        /*
-        for (int i = 0; i < triangleNeighbors.Length; i++)
-        {
-            Debug.Log($"Triangle {i} is connected to triangles: {string.Join(", ", triangleNeighbors[i])}");
-        }
-        */
-        // Debugging to see normals
-        DebugShowNormals(mesh);
-        
-    }
-
-    private void DebugShowNormals(Mesh mesh)
-    {
-        Vector3[] vertices = mesh.vertices;
-        Vector3[] normals = mesh.normals;
-
-        float normalLength = 0.5f;
-        
-        Color normalColor = Color.green;
-
-        for (int i = 0; i < vertices.Length; i++)
-        {
-            Vector3 worldVertex = transform.TransformPoint(vertices[i]);
-            Vector3 worldNormal = transform.TransformDirection(normals[i]);
-
-            // CHANGED: Setting depthTest (the 5th parameter) to true.
-            // This forces Unity to use the depth buffer, naturally hiding 
-            // lines that sit behind solid objects.
-            Debug.DrawRay(worldVertex, worldNormal * normalLength, normalColor, float.MaxValue, true);
         }
     }
 }
