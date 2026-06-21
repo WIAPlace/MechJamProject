@@ -7,11 +7,14 @@ public class TestCharacterOnMesh : MonoBehaviour
     public bool logTriangles;
     public float rayDistance = 10f;
     public LayerMask indexMask;
+    public float rotationSpeed = 10f;
     
 
     private Collider previousHitCollider = null;
     private MeshEdgeScanner scanner;
     private int debugLastTriangleIndex = -1;
+
+    private Mesh mesh; // used to hold mesh of collider bellow player
 
 
     
@@ -38,8 +41,9 @@ public class TestCharacterOnMesh : MonoBehaviour
             if(previousHitCollider == null || hit.collider != previousHitCollider)
             {    // Verify we hit a mesh scanner target 
                 scanner = hit.collider.GetComponent<MeshEdgeScanner>();
-                previousHitCollider = hit.collider;
+                mesh = scanner.GetComponent<MeshFilter>().mesh; // set mesh to the comonent of scanner;
 
+                previousHitCollider = hit.collider;
                 // only send this to console if it is wanted
                 if(logTriangles) Debug.Log(hit.collider.name);
             }
@@ -56,22 +60,32 @@ public class TestCharacterOnMesh : MonoBehaviour
                         Debug.Log($"Raycast hit Triangle ID: {hitTriangleIndex}");
                         debugLastTriangleIndex = hitTriangleIndex;
                     }
-                    DrawDebugTriangleEdges(hitTriangleIndex,scanner);
+                    
+                    int[] triangles = mesh.triangles;
+                    Vector3[] vertices = mesh.vertices;
+                    Transform meshTransform = scanner.transform;
 
-                    baryCoords = hit.barycentricCoordinate;
-                    DebugShowBaryCoords(hit, scanner);
+
+                    DrawDebugTriangleEdges(hitTriangleIndex,scanner, triangles, vertices, meshTransform);
+
+
+                    baryCoords = hit.barycentricCoordinate; // get the barrycentric cordinate right below the player
+                    DebugShowBaryCoords(hit, triangles,vertices);
+
+
+                    // set rotation to triangle normal
+                    Vector3 forwardOnPlane = Vector3.ProjectOnPlane(transform.forward, hit.normal);
+                    Quaternion targetRotation = Quaternion.LookRotation(forwardOnPlane, hit.normal);
+                    
+                    // Smoothly rotate toward the slope normal
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
                 }
             }
         }
     }
 
-    void DrawDebugTriangleEdges(int hitTriIndex, MeshEdgeScanner scanner)
+    void DrawDebugTriangleEdges(int hitTriIndex, MeshEdgeScanner scanner, int[] triangles , Vector3[] vertices, Transform meshTransform)
     {
-        Mesh mesh = scanner.GetComponent<MeshFilter>().mesh;
-        int[] triangles = mesh.triangles;
-        Vector3[] vertices = mesh.vertices;
-        Transform meshTransform = scanner.transform;
-
         // 1. FIRST: Draw the main hit triangle in solid red
         int hitStart = hitTriIndex * 3;
         Vector3 hitA = meshTransform.TransformPoint(vertices[triangles[hitStart]]);
@@ -132,13 +146,8 @@ public class TestCharacterOnMesh : MonoBehaviour
         Debug.DrawLine(startPoint, endPoint, Color.green);
     }
     
-    private void DebugShowBaryCoords(RaycastHit hit, MeshEdgeScanner scanner)
+    private void DebugShowBaryCoords(RaycastHit hit, int[] triangles, Vector3[] vertices)
     {
-        Mesh mesh = scanner.GetComponent<MeshFilter>().mesh;
-        int[] triangles = mesh.triangles;
-        Vector3[] vertices = mesh.vertices;
-        Transform meshTransform = scanner.transform;
-
         // Extract the 3 local vertex positions of the hit triangle
         Vector3 p0 = vertices[triangles[hit.triangleIndex * 3 + 0]];
         Vector3 p1 = vertices[triangles[hit.triangleIndex * 3 + 1]];
@@ -156,5 +165,24 @@ public class TestCharacterOnMesh : MonoBehaviour
         Debug.DrawLine(worldHitPoint + Vector3.left * 0.2f, worldHitPoint + Vector3.right * 0.2f, Color.green);
         Debug.DrawLine(worldHitPoint + Vector3.forward * 0.2f, worldHitPoint + Vector3.back * 0.2f, Color.green);
 
+    }
+
+
+    // not really needed anymore. was basicly able to just do it based off the raycast, 
+    // so if that ever stops working, this will at least be here
+    Vector3 GetNormalFromMeshTriangle(int triangleIndex, int[] triangles, Vector3[] vertices)
+    {
+        // Each triangle consists of 3 consecutive indices in the array
+        int vertexIndexA = triangles[triangleIndex * 3 + 0];
+        int vertexIndexB = triangles[triangleIndex * 3 + 1];
+        int vertexIndexC = triangles[triangleIndex * 3 + 2];
+
+        // Grab the local space positions of the points
+        Vector3 a = vertices[vertexIndexA];
+        Vector3 b = vertices[vertexIndexB];
+        Vector3 c = vertices[vertexIndexC];
+
+        // Calculate and return the face normal
+        return Vector3.Cross(b - a, c - a).normalized;
     }
 }
