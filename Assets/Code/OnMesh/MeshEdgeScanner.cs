@@ -57,8 +57,9 @@ public class MeshEdgeScanner : MonoBehaviour
     }
 
     public List<int>[] triangleNeighbors;
+    public Dictionary<Edge, List<int>> edgeToTriangles = new Dictionary<Edge, List<int>>();
 
-    void Start()
+    void Awake()
     {
         MeshFilter meshFilter = GetComponent<MeshFilter>();
         if (meshFilter == null) return;
@@ -67,7 +68,7 @@ public class MeshEdgeScanner : MonoBehaviour
         int[] triangles = mesh.triangles;
         Vector3[] vertices = mesh.vertices;
 
-        Dictionary<Edge, List<int>> edgeToTriangles = new Dictionary<Edge, List<int>>();
+        edgeToTriangles = new Dictionary<Edge, List<int>>();
 
         // STEP 1: Scan all triangles and map edges via physical coordinates
         for (int i = 0; i < triangles.Length; i += 3)

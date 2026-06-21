@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 /// <summary>
 ///  Tool for utilizing the event system with the input actions
@@ -66,7 +67,7 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
     
     ////// Player Events ///////////////
     /// 
-    
+    public event Action<Vector2> MoveEvent; 
 
 
     ////// UI Events ///////////////////
@@ -78,17 +79,16 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
     
     ////// Implemented /////////////////
     ///
-    
+    public void OnMove(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        MoveEvent?.Invoke(context.ReadValue<Vector2>());
+    }
 
 
 
     ////// Not Implemented /////////////
     /// Interfaces will automaticaly be generated 
-    public void OnMove(UnityEngine.InputSystem.InputAction.CallbackContext context)
-    {
-        //throw new System.NotImplementedException();
-    }
-
+    
     public void OnLook(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
         //throw new System.NotImplementedException();

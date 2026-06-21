@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEditor;
 
 // used to just point with a game object at a thing and see its connected triangles
-public class TestRaycastTriangleDetector : MonoBehaviour
+public class TriangleDetectorViewPort : MonoBehaviour
 {
+    public bool isEnabled;
     public bool logTriangles;
     public float rayDistance = 10f;
     public LayerMask indexMask;
@@ -16,14 +17,26 @@ public class TestRaycastTriangleDetector : MonoBehaviour
 
     void Update()
     {
-        DrawLineForward();
-        // Example: Cast a ray straight forward from this object
-        Ray ray = new Ray(transform.position, -transform.up); //for object
-        RaycastHit hit;
+        if(isEnabled){
+            ShootRaycast();
+        }
+    }
+
+    //[MenuItem("Tools/Shoot Editor Raycast")]
+    public void ShootRaycast()
+    {
+        //DrawLineForward();
+        // Get the active scene view window
+        SceneView sceneView = SceneView.lastActiveSceneView;
         
-        if (Physics.Raycast(ray, out hit, rayDistance ,indexMask))
+        if (sceneView != null && sceneView.camera != null)
         {
-            if(previousHitCollider == null || hit.collider != previousHitCollider)
+            // Extract the position and forward vector from the editor camera
+            Ray ray = sceneView.camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+
+            if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, indexMask))
+            {
+                if(previousHitCollider == null || hit.collider != previousHitCollider)
             {    // Verify we hit a mesh scanner target 
                 scanner = hit.collider.GetComponent<MeshEdgeScanner>();
                 previousHitCollider = hit.collider;
@@ -46,6 +59,7 @@ public class TestRaycastTriangleDetector : MonoBehaviour
                     }
                     DrawDebugTriangleEdges(hitTriangleIndex,scanner);
                 }
+            }
             }
         }
     }
@@ -113,7 +127,7 @@ public class TestRaycastTriangleDetector : MonoBehaviour
     {
         // Define the start and end points
         Vector3 startPoint = transform.position;
-        Vector3 endPoint = startPoint + (-transform.up* rayDistance);
+        Vector3 endPoint = startPoint + (transform.forward* rayDistance);
 
         // Draw the line in the Scene View (Color, Duration)
         Debug.DrawLine(startPoint, endPoint, Color.green);
