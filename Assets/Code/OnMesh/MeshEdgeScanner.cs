@@ -61,14 +61,36 @@ public class MeshEdgeScanner : MonoBehaviour
 
     void Awake()
     {
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        if (meshFilter == null) return;
+        Mesh mesh = null;
 
-        Mesh mesh = meshFilter.mesh;
+        // 1. Try to get a standard MeshFilter first
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        if (meshFilter != null)
+        {
+            mesh = meshFilter.mesh;
+        }
+        else
+        {
+            // 2. FALLBACK: Look for a SkinnedMeshRenderer if it's an animated character
+            SkinnedMeshRenderer smr = GetComponent<SkinnedMeshRenderer>();
+            if (smr != null)
+            {
+                mesh = smr.sharedMesh;
+            }
+        }
+
+        // Safety check: If neither exists, halt initialization
+        if (mesh == null)
+        {
+            Debug.LogError($"[MeshEdgeScanner] No MeshFilter or SkinnedMeshRenderer found on {gameObject.name}!", this);
+            return;
+        }
+
+        // 3. Extract the topology arrays from our discovered mesh source
         int[] triangles = mesh.triangles;
         Vector3[] vertices = mesh.vertices;
 
-        edgeToTriangles = new Dictionary<Edge, List<int>>();
+        Dictionary<Edge, List<int>> edgeToTriangles = new Dictionary<Edge, List<int>>();
 
         // STEP 1: Scan all triangles and map edges via physical coordinates
         for (int i = 0; i < triangles.Length; i += 3)
@@ -117,12 +139,14 @@ public class MeshEdgeScanner : MonoBehaviour
                         int triA = connectedTris[a];
                         int triB = connectedTris[b];
 
-                        // FIXED: Correctly assign two-way relationships
+                        // Assign two-way relationships
                         if (!triangleNeighbors[triA].Contains(triB)) triangleNeighbors[triA].Add(triB);
                         if (!triangleNeighbors[triB].Contains(triA)) triangleNeighbors[triB].Add(triA);
                     }
                 }
             }
         }
+        
+        Debug.Log($"[MeshEdgeScanner] Successfully generated map data for {triangleCount} triangles!");
     }
 }

@@ -616,7 +616,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbb9a6011f611104c91c1f5b6eba438f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeshSurfaceMover
-  scanner: {fileID: 1800122258}
+  scanner: {fileID: 1800122259}
+  skinnedMeshRenderer: {fileID: 1800122258}
   input: {fileID: 11400000, guid: 827dc1ea7dad92d47a824d1d92b0ca53, type: 2}
   moveSpeed: 10
   currentTriangleIndex: 0
@@ -973,6 +974,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &953534555 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -2812585925050046627, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+  m_PrefabInstance: {fileID: 1800122256}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &961384201
 GameObject:
   m_ObjectHideFlags: 0
@@ -1188,15 +1194,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
       propertyPath: m_LocalScale.x
-      value: 27.7
+      value: 24.21
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
       propertyPath: m_LocalScale.y
-      value: 27.7
+      value: 24.21
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
       propertyPath: m_LocalScale.z
-      value: 27.7
+      value: 24.21
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1242,30 +1248,62 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -5848333507670518121, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5848333507670518121, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5848333507670518121, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5848333507670518121, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5848333507670518121, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5848333507670518121, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5848333507670518121, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
       propertyPath: m_Name
       value: PlayerRig
+      objectReference: {fileID: 0}
+    - target: {fileID: 4491973031698167510, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+    - targetCorrespondingSourceObject: {fileID: -2812585925050046627, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1800122258}
+      addedObject: {fileID: 1800122259}
   m_SourcePrefab: {fileID: 100100000, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
---- !u!1 &1800122257 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
+--- !u!137 &1800122258 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4491973031698167510, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
   m_PrefabInstance: {fileID: 1800122256}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1800122258
+--- !u!114 &1800122259
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1800122257}
+  m_GameObject: {fileID: 953534555}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6adfb3c9b5448e34cbe681f3aad3acfd, type: 3}
