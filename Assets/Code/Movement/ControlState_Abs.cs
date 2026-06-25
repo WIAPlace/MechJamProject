@@ -38,5 +38,7 @@ public class ControlState_Abs : MonoBehaviour
     protected void StartupStuff()
     {
         brain = gameObject.GetComponent<Controls_Brain>();
+        input = brain.input;
+        playerBody = brain.playerBody;
     }
 }
