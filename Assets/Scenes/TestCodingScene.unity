@@ -370,7 +370,6 @@ GameObject:
   - component: {fileID: 335774621}
   - component: {fileID: 335774620}
   - component: {fileID: 335774619}
-  - component: {fileID: 335774617}
   - component: {fileID: 335774622}
   m_Layer: 0
   m_Name: Cube
@@ -379,18 +378,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &335774617
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 335774616}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6adfb3c9b5448e34cbe681f3aad3acfd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeshEdgeScanner
 --- !u!23 &335774619
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -616,7 +603,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbb9a6011f611104c91c1f5b6eba438f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeshSurfaceMover
-  scanner: {fileID: 1800122259}
+  scanner: {fileID: 0}
   skinnedMeshRenderer: {fileID: 1800122258}
   input: {fileID: 11400000, guid: 827dc1ea7dad92d47a824d1d92b0ca53, type: 2}
   moveSpeed: 10
@@ -941,7 +928,6 @@ GameObject:
   - component: {fileID: 819941436}
   - component: {fileID: 819941435}
   - component: {fileID: 819941439}
-  - component: {fileID: 819941438}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -1015,24 +1001,12 @@ Transform:
   m_GameObject: {fileID: 819941433}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: 0}
+  m_LocalPosition: {x: -1.19, y: -0, z: -2.38}
   m_LocalScale: {x: 14.674191, y: 14.674191, z: 14.674191}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &819941438
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 819941433}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6adfb3c9b5448e34cbe681f3aad3acfd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeshEdgeScanner
 --- !u!64 &819941439
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1377,8 +1351,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1607741160}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000014727735, y: -1.910688e-17, z: -3.08946e-17, w: 1}
-  m_LocalPosition: {x: 0, y: 8.34, z: -10}
+  m_LocalRotation: {x: 3.578405e-10, y: 0.9999273, z: -0.000000029656716, w: 0.012065209}
+  m_LocalPosition: {x: 9.34807, y: 8.34, z: 14.135633}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1524,7 +1498,7 @@ MonoBehaviour:
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
   OrbitStyle: 0
-  Radius: 10
+  Radius: 15
   Orbits:
     Top:
       Radius: 2
@@ -1683,8 +1657,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1677365462}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.34, z: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 9.71, y: 7.34, z: -0.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1777,8 +1751,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1749333800}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000014727735, y: -1.910688e-17, z: -2.8140106e-25, w: 1}
-  m_LocalPosition: {x: 0, y: 8.34, z: -10}
+  m_LocalRotation: {x: 3.5784042e-10, y: 0.9999272, z: -0.000000029656713, w: 0.0120652085}
+  m_LocalPosition: {x: 9.34807, y: 8.34, z: 14.135633}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1973,9 +1947,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: -2812585925050046627, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1800122259}
-    - targetCorrespondingSourceObject: {fileID: -2812585925050046627, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1800122261}
   m_SourcePrefab: {fileID: 100100000, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
 --- !u!137 &1800122258 stripped
@@ -1983,18 +1954,6 @@ SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 4491973031698167510, guid: cdcf72dd1591f0e4890c03670d5b666e, type: 3}
   m_PrefabInstance: {fileID: 1800122256}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1800122259
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 953534555}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6adfb3c9b5448e34cbe681f3aad3acfd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeshEdgeScanner
 --- !u!64 &1800122261
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2192,14 +2151,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2026739134}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.34, z: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 9.71, y: 7.34, z: -0.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 959913538}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &2026739136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2224,13 +2183,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48ba403574c9b094cbb1269e94755d7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Unity.Cinemachine.Samples.SimplePlayerOnSurface
-  RotationDamping: 0.5
+  RotationDamping: 1
   GroundLayers:
     serializedVersion: 2
     m_Bits: 1
   MaxRaycastDistance: 5
-  PlayerHeight: 1
+  PlayerHeight: 0.1
   FreeFallRecovery: 1
+  SmoothSurface: 0
   SurfaceChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2246,10 +2206,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58983afdeacb75c468d5a4564b4f4d38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Unity.Cinemachine.Samples.SimplePlayerController
-  Speed: 2.5
-  SprintSpeed: 6
-  JumpSpeed: 2.5
-  SprintJumpSpeed: 4
+  Speed: 10
+  SprintSpeed: 12
+  JumpSpeed: 4
+  SprintJumpSpeed: 6
   input: {fileID: 11400000, guid: 827dc1ea7dad92d47a824d1d92b0ca53, type: 2}
   Landed:
     m_PersistentCalls:
@@ -2279,6 +2239,6 @@ SceneRoots:
   - {fileID: 1861744472}
   - {fileID: 1800122256}
   - {fileID: 1608791555}
-  - {fileID: 1607741165}
   - {fileID: 2026739135}
   - {fileID: 1677365464}
+  - {fileID: 1607741165}

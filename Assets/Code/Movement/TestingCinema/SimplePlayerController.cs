@@ -194,6 +194,8 @@ namespace Unity.Cinemachine.Samples
             input.SprintCancelledEvent += HandleSprintCancelled;
             input.JumpEvent += HandleJump;
             input.JumpCancelledEvent += HandleJumpCancelled;
+
+            LockCursor();
         }
         void OnDestroy()
         {
@@ -344,7 +346,7 @@ namespace Unity.Cinemachine.Samples
                 // Process jump command
                 if (grounded && jumpInput)
                 {
-                    Debug.Log("Jumping");
+                    //Debug.Log("Jumping");
                     m_IsJumping = true;
                     m_CurrentVelocityY = m_IsSprinting ? SprintJumpSpeed : JumpSpeed;
                 }
@@ -425,6 +427,13 @@ namespace Unity.Cinemachine.Samples
             transform.SetPositionAndRotation(newPos, newRot);
             if (m_Controller != null)
                 m_Controller.enabled = true;
+        }
+
+
+        void LockCursor()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
 
         public void HandleMove(Vector2 moveAxis)

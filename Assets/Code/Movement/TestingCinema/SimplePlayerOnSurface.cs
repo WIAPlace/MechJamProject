@@ -34,6 +34,8 @@ namespace Unity.Cinemachine.Samples
         [Tooltip("If enabled, then player will fall towards the nearest surface when in free fall")]
         public bool FreeFallRecovery;
 
+        public bool SmoothSurface;
+
         [Header("Events")]
         [Tooltip("This event is sent when the player moves from one surface to another.")]
         public UnityEvent<Collider> SurfaceChanged = new ();
@@ -149,7 +151,8 @@ namespace Unity.Cinemachine.Samples
         {
             m_PreviousGroundPoint = hit.point; // Capture the last point where there was ground under our feet
             SetCurrentSurface(hit.collider); // Capture the current ground surface
-            return SmoothedNormal(hit);
+            if(SmoothSurface) return SmoothedNormal(hit); // if we want to calculate the surface as smooth, smooth
+            else return UnsmoothedNormal(hit); // else just give the basic normal.
         }
 
         void SetCurrentSurface(Collider surface)
@@ -232,6 +235,10 @@ namespace Unity.Cinemachine.Samples
             var b = hit.barycentricCoordinate;
             var localNormal = (b[0] * n0 + b[1] * n1 + b[2] * n2).normalized;
             return mc.transform.TransformDirection(localNormal);
+        }
+        Vector3 UnsmoothedNormal(RaycastHit hit)
+        {   // literaly just here to see the option and know that the original was smoothed normal above.
+            return hit.normal;
         }
     }
 }
