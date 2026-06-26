@@ -193,7 +193,7 @@ namespace Unity.Cinemachine.Samples
             input.SprintEvent += HandleSprint;
             input.SprintCancelledEvent += HandleSprintCancelled;
             input.JumpEvent += HandleJump;
-            input.JumpEvent += HandleJumpCancelled;
+            input.JumpCancelledEvent += HandleJumpCancelled;
         }
         void OnDestroy()
         {
@@ -201,7 +201,7 @@ namespace Unity.Cinemachine.Samples
             input.SprintEvent -= HandleSprint;
             input.SprintCancelledEvent -= HandleSprintCancelled;
             input.JumpEvent -= HandleJump;
-            input.JumpEvent -= HandleJumpCancelled;
+            input.JumpCancelledEvent -= HandleJumpCancelled;
         }
 
         void Update()
@@ -344,6 +344,7 @@ namespace Unity.Cinemachine.Samples
                 // Process jump command
                 if (grounded && jumpInput)
                 {
+                    Debug.Log("Jumping");
                     m_IsJumping = true;
                     m_CurrentVelocityY = m_IsSprinting ? SprintJumpSpeed : JumpSpeed;
                 }
