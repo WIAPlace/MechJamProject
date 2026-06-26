@@ -5,6 +5,7 @@ public class ControlState_Crawl : ControlState_Abs
     [SerializeField] public LayerMask surfaceMask;
     [SerializeField] float moveSpeed;
     [SerializeField] float rayLength;
+    public Transform cameraTransform;
     public float gravityStrength = 30f;
     public float rotationSpeed = 12f; // Increased for sharp turns
     
@@ -35,6 +36,7 @@ public class ControlState_Crawl : ControlState_Abs
             brain.ApplyCustomGravity();
             brain.SmoothLookRotation();
             Move();
+            //RotateToVelocity();
         }
     }
 
@@ -56,9 +58,57 @@ public class ControlState_Crawl : ControlState_Abs
 
     void Move()
     {
-        Vector3 moveDirection = (playerBody.transform.right * brain.moveInput.x) + (playerBody.transform.forward *  brain.moveInput.y);
-        moveDirection = moveDirection.normalized * moveSpeed;
+        // Calculate surface-relative "Right" vector
+        Vector3 surfaceRight = Vector3.ProjectOnPlane(cameraTransform.right, brain.surfaceNormal).normalized;
 
-        brain.rb.MovePosition(brain.rb.position + moveDirection * Time.fixedDeltaTime);
+        // Calculate surface-relative "Forward" vector 
+        // This ensures 'W' always points up on walls, or forward on flat ground
+        Vector3 surfaceForward = Vector3.ProjectOnPlane(cameraTransform.up, brain.surfaceNormal).normalized;
+        
+        // Alternative variant: if camera up feels weird on flat ground, use camera forward projected
+        /*
+        if (Vector3.Dot(brain.surfaceNormal, Vector3.up) > 0.7f) // If mostly flat ground
+        {
+            surfaceForward = Vector3.ProjectOnPlane(cameraTransform.forward, brain.surfaceNormal).normalized;
+        }
+        */
+        //Vector3 camForward = cameraTransform.forward;
+        //Vector3 camRight = cameraTransform.right;
+
+        Vector3 moveDirection = (surfaceRight* brain.moveInput.x) + (surfaceForward *  brain.moveInput.y);
+        if (moveDirection.magnitude > 0.1f)
+        {
+            // FORCE VELOCITY ALONG THE SURFACE
+            // Project the movement direction completely flat onto the surface normal
+            Vector3 surfaceMoveDir = Vector3.ProjectOnPlane(moveDirection, brain.surfaceNormal).normalized;
+            
+            // Re-apply velocity entirely along the slope, killing outward momentum
+            brain.rb.linearVelocity = surfaceMoveDir * moveSpeed;
+            
+            // Optional: Rotate bug's visuals to look in the direction of movement
+            Quaternion lookRot = Quaternion.LookRotation(moveDirection, brain.surfaceNormal);
+            playerBody.transform.rotation = Quaternion.Slerp(playerBody.transform.rotation, lookRot, rotationSpeed * Time.fixedDeltaTime);
+        }
+        else
+        {
+            // Stop moving if no input, but keep gravity pull
+            Vector3 normalVelocity = Vector3.Project(brain.rb.linearVelocity, brain.surfaceNormal);
+            brain.rb.linearVelocity = Vector3.MoveTowards(brain.rb.linearVelocity, normalVelocity, moveSpeed * Time.fixedDeltaTime);
+        }
+    }
+
+    void RotateToVelocity()
+    {
+        if (brain.rb.linearVelocity.sqrMagnitude > 0.01f)
+        {
+            // Calculate the target rotation based on velocity
+            Quaternion targetRotation = Quaternion.LookRotation(brain.rb.linearVelocity, Vector3.up);
+            
+            // OPTION 1: Smooth rotation (Recommended)
+            brain.rb.MoveRotation(Quaternion.Slerp(brain.rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
+            
+            // OPTION 2: Instant rotation (Uncomment below and comment out Option 1 if preferred)
+            // rb.MoveRotation(targetRotation);
+        }
     }
 }

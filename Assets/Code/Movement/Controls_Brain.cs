@@ -26,7 +26,7 @@ public class Controls_Brain : MonoBehaviour
     public float downDistance = 1.2f;
     public float forwardDistance = 1.0f;
 
-    private Vector3 surfaceNormal;
+    [HideInInspector] public Vector3 surfaceNormal;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -95,6 +95,11 @@ public class Controls_Brain : MonoBehaviour
 
     public void ApplyCustomGravity()
     {
+
+        if (Vector3.Angle(playerBody.transform.up, surfaceNormal) > 15)
+        {   // if ledge
+            rb.AddForce(-surfaceNormal * (crawlState.gravityStrength * 2f), ForceMode.Acceleration);
+        }
         rb.AddForce(-surfaceNormal * crawlState.gravityStrength, ForceMode.Acceleration);
     }
 

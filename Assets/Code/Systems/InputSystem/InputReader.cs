@@ -68,6 +68,10 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
     ////// Player Events ///////////////
     /// 
     public event Action<Vector2> MoveEvent; 
+    public event Action JumpEvent;
+    public event Action JumpCancelledEvent;
+    public event Action SprintEvent;
+    public event Action SprintCancelledEvent;
 
 
     ////// UI Events ///////////////////
@@ -84,7 +88,30 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
         MoveEvent?.Invoke(context.ReadValue<Vector2>());
     }
 
+    public void OnJump(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed)
+        {
+            JumpEvent?.Invoke();
+        }
+        if (context.phase == InputActionPhase.Canceled)
+        {
+            JumpCancelledEvent?.Invoke();
+        }
+    }
 
+    public void OnSprint(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        //throw new System.NotImplementedException();
+        if (context.phase == InputActionPhase.Performed)
+        {
+            SprintEvent?.Invoke();
+        }
+        if (context.phase == InputActionPhase.Canceled)
+        {
+            SprintCancelledEvent?.Invoke();
+        }
+    }
 
     ////// Not Implemented /////////////
     /// Interfaces will automaticaly be generated 
@@ -109,10 +136,7 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
         //throw new System.NotImplementedException();
     }
 
-    public void OnJump(UnityEngine.InputSystem.InputAction.CallbackContext context)
-    {
-        //throw new System.NotImplementedException();
-    }
+    
 
     public void OnPrevious(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
@@ -124,10 +148,7 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
         //throw new System.NotImplementedException();
     }
 
-    public void OnSprint(UnityEngine.InputSystem.InputAction.CallbackContext context)
-    {
-        //throw new System.NotImplementedException();
-    }
+    
 
     public void OnNavigate(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
