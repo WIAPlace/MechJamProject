@@ -72,6 +72,7 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
     public event Action JumpCancelledEvent;
     public event Action SprintEvent;
     public event Action SprintCancelledEvent;
+    public event Action InteractEvent;
 
 
     ////// UI Events ///////////////////
@@ -113,6 +114,15 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
         }
     }
 
+    public void OnInteract(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed)
+        {
+            Debug.Log("Interacted");
+            InteractEvent?.Invoke();
+        }
+    }
+
     ////// Not Implemented /////////////
     /// Interfaces will automaticaly be generated 
     
@@ -122,11 +132,6 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
     }
 
     public void OnAttack(UnityEngine.InputSystem.InputAction.CallbackContext context)
-    {
-        //throw new System.NotImplementedException();
-    }
-
-    public void OnInteract(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
         //throw new System.NotImplementedException();
     }

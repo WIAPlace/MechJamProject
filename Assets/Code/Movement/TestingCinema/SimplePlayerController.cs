@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using System;
 using UnityEngine.Events;
@@ -43,6 +43,7 @@ namespace Unity.Cinemachine.Samples
         public Action<Vector3, float> PostUpdate;
         public Action StartJump;
         public Action EndJump;
+        public Action Eat;
 
         [Header("Input Axes")]
         /*
@@ -147,8 +148,15 @@ namespace Unity.Cinemachine.Samples
         [Tooltip("Layers to include in ground detection via Raycasts.")]
         public LayerMask GroundLayers = 1;
 
-        [Tooltip("Force of gravity in the down direction (m/s^2)")]
+        [HideInInspector, Tooltip("Force of gravity in the down direction (m/s^2)")]
         public float Gravity = 10;
+
+        [Tooltip("Force of gravity in the down direction (m/s^2)")]
+        public float GravityOnGround = 100;
+        [Tooltip("Force of gravity in the down direction (m/s^2)")]
+        public float GravityInAir = 10;
+
+        
 
         const float kDelayBeforeInferringJump = 0.3f;
         float m_TimeLastGrounded = 0;
@@ -179,6 +187,11 @@ namespace Unity.Cinemachine.Samples
 
         public bool IsGrounded() => GetDistanceFromGround(transform.position, UpDirection, 10) < 0.01f;
 
+        // Eat Stuff
+        public LayerMask eatLayer;
+        private bool inEat = false;
+        private bool isEating = false;
+
         // Note that m_Controller is an optional component: we'll use it if it's there.
         void Start() => TryGetComponent(out m_Controller);
 
@@ -189,11 +202,15 @@ namespace Unity.Cinemachine.Samples
             m_IsJumping = false;
             m_TimeLastGrounded = Time.time;
 
+            Gravity = GravityOnGround;
+
+
             input.MoveEvent += HandleMove;
             input.SprintEvent += HandleSprint;
             input.SprintCancelledEvent += HandleSprintCancelled;
             input.JumpEvent += HandleJump;
             input.JumpCancelledEvent += HandleJumpCancelled;
+            input.InteractEvent += HandleEat;
 
             LockCursor();
         }
@@ -204,6 +221,7 @@ namespace Unity.Cinemachine.Samples
             input.SprintCancelledEvent -= HandleSprintCancelled;
             input.JumpEvent -= HandleJump;
             input.JumpCancelledEvent -= HandleJumpCancelled;
+            input.InteractEvent -= HandleEat;
         }
 
         void Update()
@@ -348,7 +366,9 @@ namespace Unity.Cinemachine.Samples
                 {
                     //Debug.Log("Jumping");
                     m_IsJumping = true;
+                    Gravity = GravityInAir; // on Jump be in air
                     m_CurrentVelocityY = m_IsSprinting ? SprintJumpSpeed : JumpSpeed;
+                    
                 }
                 // If we are falling, assume the jump pose
                 if (!grounded && now - m_TimeLastGrounded > kDelayBeforeInferringJump)
@@ -365,6 +385,7 @@ namespace Unity.Cinemachine.Samples
             {
                 m_TimeLastGrounded = Time.time;
                 m_CurrentVelocityY = 0;
+                Gravity = GravityOnGround; // Stick to surface
 
                 // If we were jumping, complete the jump
                 if (m_IsJumping)
@@ -428,6 +449,22 @@ namespace Unity.Cinemachine.Samples
             if (m_Controller != null)
                 m_Controller.enabled = true;
         }
+        public void OnTriggerEnter(Collider other)
+        {
+            if ((eatLayer.value & (1 << other.gameObject.layer)) != 0)
+            {
+                //Debug.Log("In Trigger");
+                inEat = true;
+            }
+        }
+        public void OnTriggerExit(Collider other)
+        {
+            if ((eatLayer.value & (1 << other.gameObject.layer)) != 0)
+            {
+                //Debug.Log("Out Trigger");
+                inEat = false;
+            }
+        }
 
 
         void LockCursor()
@@ -438,11 +475,12 @@ namespace Unity.Cinemachine.Samples
 
         public void HandleMove(Vector2 moveAxis)
         {
-            moveInput = moveAxis;
+            if(!isEating) moveInput = moveAxis;
+            else moveInput = new Vector2(0,0);
         }
         public void HandleJump()
         {
-            jumpInput = true;
+            if(!isEating) jumpInput = true;
         }
         public void HandleJumpCancelled()
         {
@@ -450,11 +488,29 @@ namespace Unity.Cinemachine.Samples
         }
         public void HandleSprint()
         {
-            sprintInput = true;
+            if(!isEating) sprintInput = true;
         }
         public void HandleSprintCancelled()
         {
             sprintInput = false;
+        }
+
+        public void HandleEat()
+        {
+            //Debug.Log("inEat: "+inEat);
+            //Debug.Log("isEating: "+isEating);
+            if (inEat && !isEating)
+            {
+                //Debug.Log("Eating");
+                StartCoroutine(Consume());
+            }
+        }
+        IEnumerator Consume()
+        {   
+            isEating = true;
+            Eat(); // set off the animation
+            yield return new WaitForSeconds(1.27f);
+            isEating = false;
         }
     }
 }

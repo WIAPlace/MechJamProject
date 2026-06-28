@@ -5,6 +5,12 @@ using UnityEngine.Events;
 
 namespace Unity.Cinemachine.Samples
 {
+    public enum FallState
+    {
+        FreeFallRecovery,
+        WorldDown,
+        None
+    }
     /// <summary>
     /// This behaviour keeps a player upright on surfaces.  It can be used to make the player walk
     /// on walls and ceilings or on the surfaces of arbitrary meshes.  It rotates the player
@@ -32,7 +38,10 @@ namespace Unity.Cinemachine.Samples
         public float PlayerHeight = 1;
 
         [Tooltip("If enabled, then player will fall towards the nearest surface when in free fall")]
-        public bool FreeFallRecovery;
+        //public bool FreeFallRecovery;
+        public FallState fallMode;
+        public Transform baseUp;
+
 
         public bool SmoothSurface;
 
@@ -44,6 +53,8 @@ namespace Unity.Cinemachine.Samples
         Vector3 m_PreviousPosition;
         Collider m_CurrentSurface;
         float m_FreeFallRaycastAngle = 0;
+
+        
 
         public bool PreviousSateIsValid { get; set; }
 
@@ -118,14 +129,19 @@ namespace Unity.Cinemachine.Samples
             else
             {
                 SetCurrentSurface(null);
-                if (FreeFallRecovery
+                if (fallMode == FallState.FreeFallRecovery
                     && Vector3.Dot(motionDir, desiredUp) <= 0
                     && FindNearestSurface(downRaycastOrigin, raycastLength, out var surfacePoint))
                 {
                     desiredUp = (downRaycastOrigin - surfacePoint).normalized;
-                    damping = 0;
+                    damping = .3f;
                     if (!PreviousSateIsValid)
                         m_PreviousGroundPoint = downRaycastOrigin - motionDir;
+                }
+                else if (fallMode == FallState.WorldDown){
+                    //Debug.Log("Falling");
+                    desiredUp = baseUp.up;
+                    damping = 5;
                 }
             }
 
@@ -187,7 +203,7 @@ namespace Unity.Cinemachine.Samples
             var rotStep = Quaternion.AngleAxis(kHorizontalStepSize, -up);
             for (int i = 0; i < kHorizontalalSteps; ++i, dir = rotStep * dir)
             {
-                //Debug.DrawLine(playerPos, playerPos + dir * raycastLength, Color.yellow, 1);
+                Debug.DrawLine(playerPos, playerPos + dir * raycastLength, Color.yellow, 1); // Debug
                 if (UnityEngine.Physics.Raycast(playerPos, dir, out var hit,
                     raycastLength, GroundLayers, QueryTriggerInteraction.Ignore))
                 {

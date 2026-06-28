@@ -125,10 +125,10 @@ public class MeshSurfaceMover : MonoBehaviour
                 break;
             }
 
-            int crossedEdge = 0; 
+            //int crossedEdge = 0; 
             float minCoord = testBary.x;
-            if (testBary.y < minCoord) { minCoord = testBary.y; crossedEdge = 1; }
-            if (testBary.z < minCoord) { minCoord = testBary.z; crossedEdge = 2; }
+            if (testBary.y < minCoord) { minCoord = testBary.y; }
+            if (testBary.z < minCoord) { minCoord = testBary.z; }
 
             var neighbors = scanner.triangleNeighbors[currentTriangleIndex];
             int nextTriangle = -1;
