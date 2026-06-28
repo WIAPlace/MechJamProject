@@ -1,3 +1,4 @@
+using System;
 using Unity.Cinemachine.Samples;
 using UnityEngine;
 

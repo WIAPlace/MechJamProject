@@ -118,7 +118,7 @@ public class InputReader : ScriptableObject, InputSystem.IPlayerActions, InputSy
     {
         if (context.phase == InputActionPhase.Performed)
         {
-            Debug.Log("Interacted");
+            //Debug.Log("Interacted");
             InteractEvent?.Invoke();
         }
     }

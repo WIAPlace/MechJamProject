@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using System;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace Unity.Cinemachine.Samples
 {
@@ -191,6 +192,7 @@ namespace Unity.Cinemachine.Samples
         public LayerMask eatLayer;
         private bool inEat = false;
         private bool isEating = false;
+        public LayerMask boundsLayer;
 
         // Note that m_Controller is an optional component: we'll use it if it's there.
         void Start() => TryGetComponent(out m_Controller);
@@ -464,6 +466,11 @@ namespace Unity.Cinemachine.Samples
                 //Debug.Log("Out Trigger");
                 inEat = false;
             }
+            if ((boundsLayer.value & (1 << other.gameObject.layer)) != 0)
+            {
+                Debug.Log("Out Of Bounds");
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
         }
 
 
@@ -508,6 +515,7 @@ namespace Unity.Cinemachine.Samples
         IEnumerator Consume()
         {   
             isEating = true;
+            inEat = false;
             Eat(); // set off the animation
             yield return new WaitForSeconds(1.27f);
             isEating = false;
