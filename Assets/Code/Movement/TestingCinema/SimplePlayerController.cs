@@ -186,6 +186,9 @@ namespace Unity.Cinemachine.Samples
         public bool IsJumping => m_IsJumping;
         public Camera Camera => CameraOverride == null ? Camera.main : CameraOverride;
 
+        public int hazzardTimer;
+        public float hazzardSpeed;
+
         public bool IsGrounded() => GetDistanceFromGround(transform.position, UpDirection, 10) < 0.01f;
 
         // Eat Stuff
@@ -193,6 +196,7 @@ namespace Unity.Cinemachine.Samples
         private bool inEat = false;
         private bool isEating = false;
         public LayerMask boundsLayer;
+        public LayerMask hazzardLayer;
 
         // Note that m_Controller is an optional component: we'll use it if it's there.
         void Start() => TryGetComponent(out m_Controller);
@@ -458,6 +462,11 @@ namespace Unity.Cinemachine.Samples
                 //Debug.Log("In Trigger");
                 inEat = true;
             }
+            if ((hazzardLayer.value & (1 << other.gameObject.layer)) != 0)
+            {
+                Vector3 direction = (other.transform.position - gameObject.transform.position).normalized;
+                LaunchHazzard(direction);
+            }
         }
         public void OnTriggerExit(Collider other)
         {
@@ -470,6 +479,25 @@ namespace Unity.Cinemachine.Samples
             {
                 Debug.Log("Out Of Bounds");
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+        }
+
+        void LaunchHazzard(Vector3 position)
+        {
+            Gravity = GravityInAir;
+            StartCoroutine(PushAway(-position));
+            
+        }
+        IEnumerator PushAway(Vector3 direction)
+        {
+            int timer = hazzardTimer;
+            while(timer > 0)
+            {   
+                if(Gravity != GravityInAir) Gravity = GravityInAir;
+                timer -=1;
+                transform.position += direction * hazzardSpeed * Time.deltaTime;
+                yield return null;
+                
             }
         }
 
