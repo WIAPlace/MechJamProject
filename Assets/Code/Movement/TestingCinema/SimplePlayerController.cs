@@ -186,7 +186,7 @@ namespace Unity.Cinemachine.Samples
         public bool IsJumping => m_IsJumping;
         public Camera Camera => CameraOverride == null ? Camera.main : CameraOverride;
 
-        public int hazzardTimer;
+        public float hazzardTimer;
         public float hazzardSpeed;
 
         public bool IsGrounded() => GetDistanceFromGround(transform.position, UpDirection, 10) < 0.01f;
@@ -490,15 +490,23 @@ namespace Unity.Cinemachine.Samples
         }
         IEnumerator PushAway(Vector3 direction)
         {
-            int timer = hazzardTimer;
-            while(timer > 0)
+            float timer = 0f;
+            float currentPushSpeed = hazzardSpeed;
+            while(timer <= hazzardTimer)
             {   
                 if(Gravity != GravityInAir) Gravity = GravityInAir;
-                timer -=1;
-                transform.position += direction * hazzardSpeed * Time.deltaTime;
+                timer += Time.deltaTime;
+
+                float t = timer/hazzardTimer;
+                float easeOutT = t *(2f-t);
+                
+                currentPushSpeed = Mathf.Lerp(hazzardSpeed,0f,easeOutT);
+
+                transform.position += direction * currentPushSpeed * Time.deltaTime;
                 yield return null;
                 
             }
+            //Debug.Log("Pushed Away");
         }
 
 

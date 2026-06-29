@@ -4,6 +4,7 @@ using UnityEngine;
 public class TurnOnHazzardTrigger : MonoBehaviour
 {
     [SerializeField] GameObject HazardTrigger;
+    [SerializeField] ParticleSystem ParticleEffect;
     [SerializeField] float Intervals;
     [SerializeField] float lastingTime;
     private bool activeState = true;
@@ -24,8 +25,10 @@ public class TurnOnHazzardTrigger : MonoBehaviour
         while (activeState)
         {
             HazardTrigger.SetActive(false);
+            ParticleEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             yield return new WaitForSeconds(Intervals);
             HazardTrigger.SetActive(true);
+            ParticleEffect.Play();
             yield return new WaitForSeconds(lastingTime);   
         }
     }
