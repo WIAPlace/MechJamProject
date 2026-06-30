@@ -486,8 +486,8 @@ namespace Unity.Cinemachine.Samples
         {
             Gravity = GravityInAir;
             StartCoroutine(PushAway(-position));
-            
         }
+        
         IEnumerator PushAway(Vector3 direction)
         {
             float timer = 0f;
